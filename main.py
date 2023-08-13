@@ -41,15 +41,16 @@ def save():
     if len(website) == 0 or len(email) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops...", message="Oops! It looks like you left out some information.")
     else:
-        save_data = messagebox.askokcancel(title=website, message=f"These are the details entered:\nEmail: {email}"
-                                                                  f"\nPassword: {password} \nIs it okay to save?")
+        save_data = messagebox.askokcancel(title=website,
+                                           message=f"These are the details entered:\nEmail: {email}"
+                                                   f"\nPassword: {password} \nIs it okay to save?")
         if save_data:
             try:
                 with open("data.json", "r") as file:
                     data = json.load(file)
             except FileNotFoundError:
                 with open("data.json", "w") as file:
-                    json.dump(data, file, indent=4)
+                    json.dump(new_data, file, indent=4)
             else:
                 data.update(new_data)
                 with open("data.json", "w") as file:
@@ -57,6 +58,22 @@ def save():
             finally:
                 website_input.delete(0, END)
                 password_input.delete(0, END)
+
+
+def search_data():
+    key = website_input.get()
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+            user_data = data[key]
+    except (FileNotFoundError, KeyError):
+        messagebox.showerror("Oops..",
+                             "There is no saved information for that website."
+                             )
+    else:
+        messagebox.showinfo("Credentials", f"Email: {user_data['email']},"
+                                           f"\nPassword:, {user_data['password']}."
+                            )
 
 
 window = Tk()
@@ -70,9 +87,9 @@ canvas.grid(row=0, column=1)
 
 website_label = Label(text="Website:")
 website_label.grid(row=1, column=0)
-website_input = Entry(width=38)
+website_input = Entry(width=21)
 website_input.focus()
-website_input.grid(row=1, column=1, columnspan=2)
+website_input.grid(row=1, column=1)
 
 email_label = Label(text="Email/Username:")
 email_label.grid(row=2, column=0)
@@ -89,5 +106,8 @@ generate_password.grid(row=3, column=2)
 
 add = Button(text="Add", width=36, command=save)
 add.grid(row=4, column=1, columnspan=2)
+
+search = Button(text="Search", width=13, command=search_data)
+search.grid(row=1, column=2)
 
 window.mainloop()
